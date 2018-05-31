@@ -45,8 +45,3 @@ plt.show()
 
 #Conc = [10,50,100,500,1000]
 #Polygon_figure(Conc,popt)
-
-print("Hello")
-
-
-print("Bye")
