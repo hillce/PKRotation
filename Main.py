@@ -20,11 +20,14 @@ from Normalisation import normalisation_max, normalisation_max_1
 #Nick's Fit program
 from EMfit import fit
 
+#Path = "C:/Users/PKGroup/iscat/iscat_jupyter/Contrasts/Standards/"
+Path = "C:/Users/Charles Hill/OneDrive - Nexus365/Contrasts/Standards/"
 Buffer = "DRP1/"
 Files = ["ADH_STD_","BetaA_STD_"]
-m,b = Calibration_Line(Buffer,Files)
+m,b = Calibration_Line(Path,Buffer,Files)
 
-Path = "C:/Users/PKGroup/iscat/iscat_jupyter/Contrasts/DRP1_2/"
+#Path = "C:/Users/PKGroup/iscat/iscat_jupyter/Contrasts/DRP1_2/"
+Path = "C:/Users/Charles Hill/OneDrive - Nexus365/Contrasts/DRP1_2/"
 Files = ["DRP1_250_","DRP1_250_GMP-PCP_","DRP1_250_GDP_","DRP1_500_"]
 handles = ["250nM","250nM with GMP-PCP","250nM with GDP","500nM"]
 #Files = ["DRP1_250_GMP-PCP_","DRP1_250_GDP_"]

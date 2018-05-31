@@ -7,8 +7,8 @@ import numpy as np
 from numpy.polynomial.polynomial import polyfit
 import matplotlib.pyplot as plt
 
-def Calibration_Line(Buffer,Files):
-    Path = "C:/Users/PKGroup/iscat/iscat_jupyter/Contrasts/Standards/"
+def Calibration_Line(Path,Buffer,Files):
+    Path = Path
     Buffer = Buffer
     Files = Files
 
