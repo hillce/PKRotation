@@ -70,7 +70,7 @@ def Batch_Fit(Path,Files,Rescaled=False,bins='knuth',Mass=False,m=1.0,b=0.0):
 
         plt.figure()
         hist(abs(Cf),bins=bins,normed=True,align='mid')
-        plt.show()
+        plt.show(block=False)
 
         print("Number of Gaussians:")
         No_gauss = int(input())
