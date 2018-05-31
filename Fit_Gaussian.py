@@ -21,7 +21,16 @@ def Fit_Gaussian(Cf,p_guess,bins,Mass=False):
     plt.figure()
     (n, bins, pathces) = hist(abs(Cf),bins=bins,normed=True,align='mid')
     print("Number of Bins:",len(bins))
-    (popt, pcov) = curve_fit(func, bins[:-1], n, p0=p_guess,method='dogbox')
+
+    while True:
+        try:
+            popt, pcov = curve_fit(func, bins[:-1], n, p0=p_guess)
+            break
+        except RuntimeError:
+            print("Error - curve_fit failed")
+            p_guess = p_guess[:-3]
+
+    
     if Mass == True:
         x = np.linspace(0.0,1500,1500)
     else:
@@ -70,29 +79,23 @@ def Batch_Fit(Path,Files,Rescaled=False,bins='knuth',Auto=True,Mass=False,m=1.0,
             Cf = abs(Cf)*m + b
 
         if Auto == True:
-            p_guess = Auto_Gauss(Path,File)
+            p_guess = Auto_Gauss(Path,File,Cf)
         else:
             plt.figure()
             hist(abs(Cf),bins=bins,normed=True,align='mid')
             plt.show()
-
             print("Number of Gaussians:")
             No_gauss = int(input())
             print('\n')
-
             p_guess = []
             for i in range(No_gauss):
                 print("Gaussian %i" % (i+1))
                 print("Centre:")
                 p_guess.append(float(input()))
-                print('\n')
                 print("Amplitude:")
                 p_guess.append(float(input()))
-                print('\n')
                 print("Width:")
                 p_guess.append(float(input()))
-                print('\n')
-            
             print("Parameter Guess:",p_guess)
 
         center, amplitude, width, param_opt = Fit_Gaussian(abs(Cf),p_guess,bins,Mass)
@@ -104,12 +107,11 @@ def Batch_Fit(Path,Files,Rescaled=False,bins='knuth',Auto=True,Mass=False,m=1.0,
 
     return ctr, amp, wid, popt
 
-def Auto_Gauss(Path,File):
-    Cf = np.load(Path+File+"Cf.npy")
+def Auto_Gauss(Path,File,Cf):
     plt.figure
-    n, bins, pat = hist(abs(Cf),bins='knuth',range=(0.0,np.max(abs(Cf))*0.5),align='left')
-    plt.clf()
-    Rel_Max = argrelextrema(n,np.greater,order=6)
+    n, bins, pat = hist(abs(Cf),bins='knuth',align='left')
+    plt.show()
+    Rel_Max = argrelextrema(n,np.greater,order=3)
     ctr = bins[Rel_Max]
     amp = n[Rel_Max]
     Wid = np.zeros(len(n[Rel_Max]))
@@ -130,4 +132,5 @@ def Auto_Gauss(Path,File):
         p_guess[i+2] = Wid[j]
         j += 1
     
+    print("Auto p_guess:",p_guess)
     return p_guess

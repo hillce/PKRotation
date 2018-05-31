@@ -7,14 +7,14 @@ import numpy as np
 from numpy.polynomial.polynomial import polyfit
 import matplotlib.pyplot as plt
 
-def Calibration_Line(Path,Buffer,Files):
+def Calibration_Line(Path,Buffer,Files,Auto=False):
     Path = Path
     Buffer = Buffer
     Files = Files
 
     STD_DICT = {"ADH_STD_":(77.8,152.3),"BetaA_STD_":(60.7),"ProA_STD_":(44),"BSA_STD_":(66.6)}
 
-    ctr, amp, wid, popt = Batch_Fit(Path+Buffer,Files)
+    ctr, amp, wid, popt = Batch_Fit(Path+Buffer,Files,Auto=Auto)
 
     print(ctr)
 
