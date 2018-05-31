@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from astroML.plotting import hist
 import numpy as np
+from scipy.signal import argrelextrema
 
 def func(x, *params):
     y = np.zeros_like(x)
@@ -51,7 +52,7 @@ def Fit_Gaussian(Cf,p_guess,bins,Mass=False):
 
     return ctr_opt, amp_opt, wid_opt, popt
 
-def Batch_Fit(Path,Files,Rescaled=False,bins='knuth',Mass=False,m=1.0,b=0.0):
+def Batch_Fit(Path,Files,Rescaled=False,bins='knuth',Auto=True,Mass=False,m=1.0,b=0.0):
     
     ctr = []
     amp = []
@@ -68,28 +69,31 @@ def Batch_Fit(Path,Files,Rescaled=False,bins='knuth',Mass=False,m=1.0,b=0.0):
         if Mass == True:
             Cf = abs(Cf)*m + b
 
-        plt.figure()
-        hist(abs(Cf),bins=bins,normed=True,align='mid')
-        plt.show(block=False)
+        if Auto == True:
+            p_guess = Auto_Gauss(Path,File)
+        else:
+            plt.figure()
+            hist(abs(Cf),bins=bins,normed=True,align='mid')
+            plt.show()
 
-        print("Number of Gaussians:")
-        No_gauss = int(input())
-        print('\n')
+            print("Number of Gaussians:")
+            No_gauss = int(input())
+            print('\n')
 
-        p_guess = []
-        for i in range(No_gauss):
-            print("Gaussian %i" % (i+1))
-            print("Centre:")
-            p_guess.append(float(input()))
-            print('\n')
-            print("Amplitude:")
-            p_guess.append(float(input()))
-            print('\n')
-            print("Width:")
-            p_guess.append(float(input()))
-            print('\n')
-        
-        print("Parameter Guess:",p_guess)
+            p_guess = []
+            for i in range(No_gauss):
+                print("Gaussian %i" % (i+1))
+                print("Centre:")
+                p_guess.append(float(input()))
+                print('\n')
+                print("Amplitude:")
+                p_guess.append(float(input()))
+                print('\n')
+                print("Width:")
+                p_guess.append(float(input()))
+                print('\n')
+            
+            print("Parameter Guess:",p_guess)
 
         center, amplitude, width, param_opt = Fit_Gaussian(abs(Cf),p_guess,bins,Mass)
 
@@ -99,3 +103,31 @@ def Batch_Fit(Path,Files,Rescaled=False,bins='knuth',Mass=False,m=1.0,b=0.0):
         popt.append(param_opt)
 
     return ctr, amp, wid, popt
+
+def Auto_Gauss(Path,File):
+    Cf = np.load(Path+File+"Cf.npy")
+    plt.figure
+    n, bins, pat = hist(abs(Cf),bins='knuth',range=(0.0,np.max(abs(Cf))*0.5),align='left')
+    plt.clf()
+    Rel_Max = argrelextrema(n,np.greater,order=6)
+    ctr = bins[Rel_Max]
+    amp = n[Rel_Max]
+    Wid = np.zeros(len(n[Rel_Max]))
+    j = 0
+    for idx in Rel_Max[0]:
+        i = 1
+        while n[idx]/2.0 < n[idx+i]:
+            i += 1
+        ind = idx + i
+        Wid[j] = (bins[ind]-bins[idx])*2
+        j += 1
+
+    p_guess = np.zeros(len(Wid)*3)
+    j = 0
+    for i in range(0,len(p_guess),3):
+        p_guess[i] = ctr[j]
+        p_guess[i+1] = amp[j]
+        p_guess[i+2] = Wid[j]
+        j += 1
+    
+    return p_guess
