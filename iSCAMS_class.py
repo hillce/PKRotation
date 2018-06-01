@@ -8,8 +8,14 @@ from scipy.optimize import curve_fit
 from scipy.signal import argrelextrema
 from scipy.ndimage.filters import gaussian_filter1d as gd1
 
+###############################################################################################################################
+#### The iSCAMS class contains all the functions and info that you would want to extract from the contrast of the fitted   ####
+#### peaks from Max's Program (see C:\Users\Charles Hill\iscat\iscat_jupyter\3_iscat_pipeline.ipynb). Not to be used with  ####
+#### multiple contrasts. There is a separate set of functions for dealing with the outputs from this class collectively    ####
+###############################################################################################################################
+
 class iSCAMS:
-    def __init__(self,Cf,c_range=(0.0,0.15),m_range=(0.0,1500),Mass=True,bin_type='knuth',order=3):
+    def __init__(self,Cf,Conc='',Protein = '',Buffer = '',Nucleotide = '',c_range=(0.0,0.15),m_range=(0.0,1500),Mass=True,bin_type='knuth',order=3):
         self.contrast = abs(Cf)
         self.instances = len(Cf)
         self.mass_data = []
@@ -24,37 +30,43 @@ class iSCAMS:
         self.order = order
         self.contrast_smooth = []
         self.mass_smooth = []
+        self.Conc = Conc
+        self.Protein = Protein
+        self.Buffer = Buffer
+        self.Nucleotide = Nucleotide
 
-    def func(self, x, *params):
+    def func(self, x, *params): # Multiple Gaussian function for scipy.optimize.curve_fit
         y = np.zeros_like(x)
         for i in range(0, len(params), 3):
             ctr = params[i]
             amp = params[i+1]
             wid = params[i+2]
             y = y + amp * np.exp( -((x - ctr)/wid)**2)
+        return y
 
-    def Fit_Gaussian(self):
+    def Fit_Gaussian(self): # Fits multiple Gaussians according to the parameter guess input (either manual or auto)
         plt.figure()
         if self.Mass == True:
             n, bins, pathces = hist(self.mass_data,bins=self.bins,normed=True,align='mid')
         else:
             n, bins, pathces = hist(self.contrast,bins=self.bins,normed=True,align='mid')
-        #print("Number of Bins:",len(bins))
         while True:
             try:
                 self.popt, pcov = curve_fit(self.func, bins[:-1], n, p0=self.p_guess)
                 break
             except RuntimeError:
-                print("Error - curve_fit failed")
-                self.p_guess = self.p_guess[:-3]
+                # If the curvefit fails, then instead of returning the errors, it recalls the Auto_gauss with a different order
+                print("Error - curve_fit failed, rerunning Auto_Gauss")
+                self.order += 1
+                self.Auto_Gauss()
+                
 
-        
         if self.Mass == True:
             self.x = np.linspace(self.m_range[0],self.m_range[1],1500)
         else:
             self.x = np.linspace(self.c_range[0],self.c_range[1],1500)
         
-        self.fit = self.func(self.x, self.popt)
+        self.fit = self.func(self.x, *self.popt)
 
         plt.plot(self.x,self.fit, 'b--')
         plt.yticks([])
@@ -66,19 +78,28 @@ class iSCAMS:
         plt.show()
 
     def Auto_Gauss(self):
-
         plt.figure
         if self.Mass == True:
-            n, bins, pat = hist(self.mass_data,bins='knuth',align='left')
+            n, bins, pat = hist(self.mass_data,bins=self.bins,align='left')
         else:
-            n, bins, pat = hist(self.contrast,bins='knuth',align='left')
+            n, bins, pat = hist(self.contrast,bins=self.bins,align='left')
 
-        Rel_Max = argrelextrema(n,np.greater,order=3)
+        Rel_Max = argrelextrema(n,np.greater,order=self.order)
         ctr = bins[Rel_Max]
         amp = n[Rel_Max]
-        Wid = np.zeros(len(n[Rel_Max]))
+
+        temp_idx = []
+        for i in range(len(amp)):
+            if amp[i] <= 3.0:
+                temp_idx.append(i)
+        amp = np.delete(amp,temp_idx)
+        ctr = np.delete(ctr,temp_idx)
+        Rel_Max = np.delete(Rel_Max,temp_idx)
+
+        Wid = np.zeros(len(amp))
         j = 0
-        for idx in Rel_Max[0]:
+        print(Rel_Max)
+        for idx in Rel_Max:
             i = 1
             while n[idx]/2.0 < n[idx+i]:
                 i += 1
@@ -100,12 +121,11 @@ class iSCAMS:
         plt.show()
 
     def Manual_Gauss(self):
-
         plt.figure
         if self.Mass == True:
-            hist(self.mass_data,bins='knuth',align='left')
+            hist(self.mass_data,bins=self.bins,align='left')
         else:
-            hist(self.contrast,bins='knuth',align='left')
+            hist(self.contrast,bins=self.bins,align='left')
         plt.show()
 
         print("Number of Gaussians:")
@@ -124,5 +144,24 @@ class iSCAMS:
             self.mass_smooth = gd1(np.sort(self.mass_data),sigma)
         else:
             self.contrast_smooth = gd1(np.sort(self.contrast),sigma)
+
+    def Plot_hist(self):
+        if self.Mass == True:
+            plt.figure()
+            hist(self.mass_data,bins=self.bins,align='left',label=self.Protein+"("+self.Conc+","+self.Buffer+","+self.Nucleotide+")")
+            plt.legend()
+            plt.xlabel("Mass (kDa)")
+            plt.ylabel("Particle Frequency")
+            plt.show()
+        else:
+            plt.figure()
+            hist(self.contrast,bins=self.bins,align='left',label=self.Protein+"("+self.Conc+","+self.Buffer+","+self.Nucleotide+")")
+            plt.legend()
+            plt.xlabel("Contrast")
+            plt.ylabel("Particle Frequency")
+            plt.show()
+
+    
+
 
     
