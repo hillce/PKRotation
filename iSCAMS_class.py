@@ -85,16 +85,20 @@ class iSCAMS:
             n, bins, pat = hist(self.contrast,bins=self.bins,align='left')
 
         Rel_Max = argrelextrema(n,np.greater,order=self.order)
-        ctr = bins[Rel_Max]
+        #ctr = bins[Rel_Max]
         amp = n[Rel_Max]
+        print(amp)
 
         temp_idx = []
         for i in range(len(amp)):
             if amp[i] <= 3.0:
                 temp_idx.append(i)
-        amp = np.delete(amp,temp_idx)
-        ctr = np.delete(ctr,temp_idx)
+        #amp = np.delete(amp,temp_idx)
+        #ctr = np.delete(ctr,temp_idx)
         Rel_Max = np.delete(Rel_Max,temp_idx)
+        ctr = bins[Rel_Max]
+        amp = n[Rel_Max]
+        print(amp)
 
         Wid = np.zeros(len(amp))
         j = 0

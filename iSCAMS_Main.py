@@ -16,13 +16,17 @@ Cf = np.load(Path+File+"Cf.npy")
 
 print(Cf)
 
-DRP1 = iSCAMS(Cf,Mass=False)
-
-print(DRP1.c_range)
-print(DRP1.contrast)
-
-print(DRP1.p_guess)
-
+DRP1 = iSCAMS(Cf,Conc="250nM",Protein="DRP1",Buffer="HEPES",Nucleotide="GMP-PCP",Mass=False)
 DRP1.Auto_Gauss()
+DRP1.Fit_Gaussian()
 
-print(DRP1.p_guess)
+'''
+plt.figure()
+for i in range(1,10):
+    plt.subplot(3,3,i)
+    DRP1.GaussKernel(sigma=i*5)
+    n,b,p = plt.hist(DRP1.contrast_smooth,bins=1000)
+    plt.plot(b[:-1],n)
+plt.show()
+'''
+DRP1.Plot_hist()
