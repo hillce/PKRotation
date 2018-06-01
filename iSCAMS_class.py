@@ -56,7 +56,7 @@ class iSCAMS:
                 break
             except RuntimeError:
                 # If the curvefit fails, then instead of returning the errors, it recalls the Auto_gauss with a different order
-                print("Error - curve_fit failed, rerunning Auto_Gauss")
+                print("Error - curve_fit failed, re-running Auto_Gauss")
                 self.order += 1
                 self.Auto_Gauss()
                 
@@ -77,7 +77,7 @@ class iSCAMS:
         plt.ylabel("Probability Density",fontsize = 12,color='blue')
         plt.show()
 
-    def Auto_Gauss(self):
+    def Auto_Gauss(self): # Automatically seeds parameters, based on the realtive maximum.
         plt.figure
         if self.Mass == True:
             n, bins, pat = hist(self.mass_data,bins=self.bins,align='left')
@@ -85,24 +85,17 @@ class iSCAMS:
             n, bins, pat = hist(self.contrast,bins=self.bins,align='left')
 
         Rel_Max = argrelextrema(n,np.greater,order=self.order)
-        #ctr = bins[Rel_Max]
         amp = n[Rel_Max]
-        print(amp)
-
         temp_idx = []
         for i in range(len(amp)):
             if amp[i] <= 3.0:
                 temp_idx.append(i)
-        #amp = np.delete(amp,temp_idx)
-        #ctr = np.delete(ctr,temp_idx)
         Rel_Max = np.delete(Rel_Max,temp_idx)
         ctr = bins[Rel_Max]
         amp = n[Rel_Max]
-        print(amp)
 
         Wid = np.zeros(len(amp))
         j = 0
-        print(Rel_Max)
         for idx in Rel_Max:
             i = 1
             while n[idx]/2.0 < n[idx+i]:
@@ -124,7 +117,7 @@ class iSCAMS:
         plt.plot(ctr+Wid/2.0,amp/2.0,'g.')
         plt.show()
 
-    def Manual_Gauss(self):
+    def Manual_Gauss(self): # Seeds the parameters, based on manual input.
         plt.figure
         if self.Mass == True:
             hist(self.mass_data,bins=self.bins,align='left')
@@ -143,13 +136,13 @@ class iSCAMS:
             print("Width:")
             self.p_guess.append(float(input()))
 
-    def GaussKernel(self,sigma=20):
+    def GaussKernel(self,sigma=20): # Runs a gaussian kernel over the data, of sigma you set
         if self.Mass == True:
             self.mass_smooth = gd1(np.sort(self.mass_data),sigma)
         else:
             self.contrast_smooth = gd1(np.sort(self.contrast),sigma)
 
-    def Plot_hist(self):
+    def Plot_hist(self): # Plots the histogram of the data, with a legend and axis.
         if self.Mass == True:
             plt.figure()
             hist(self.mass_data,bins=self.bins,align='left',label=self.Protein+"("+self.Conc+","+self.Buffer+","+self.Nucleotide+")")
