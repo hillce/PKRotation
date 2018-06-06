@@ -9,7 +9,6 @@ from scipy.signal import argrelextrema
 from scipy.ndimage.filters import gaussian_filter1d as gd1
 import pickle
 
-
 ###############################################################################################################################
 #### The iSCAMS class contains all the functions and info that you would want to extract from the contrast of the fitted   ####
 #### peaks from Max's Program (see C:\Users\Charles Hill\iscat\iscat_jupyter\3_iscat_pipeline.ipynb). Not to be used with  ####
@@ -162,12 +161,12 @@ class iSCAMS:
             plt.show()
 
     def Save_Params(self):
-        f = open(self.Protein+"_"+self.Conc+"_"+self.Buffer,'wb')
+        f = open("C:/Users/Charles Hill/iSCAMS_data/"+self.Protein+"_"+self.Conc+"_"+self.Buffer,'wb')
         pickle.dump(self.__dict__,f)
         f.close()
 
     def Read_Params(self):
-        f = open(self.Protein+"_"+self.Conc+"_"+self.Buffer,'rb')
+        f = open("C:/Users/Charles Hill/iSCAMS_data/"+self.Protein+"_"+self.Conc+"_"+self.Buffer,'rb')
         Dicti = pickle.load(f)
         self.contrast = Dicti['contrast']
         self.instances = Dicti['instances']
