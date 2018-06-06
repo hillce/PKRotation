@@ -15,12 +15,19 @@ File = "DRP1_250_GMP-PCP_"
 Cf = np.load(Path+File+"Cf.npy")
 
 print(Cf)
-
-DRP1 = iSCAMS(Cf,Conc="250nM",Protein="DRP1",Buffer="HEPES",Nucleotide="GMP-PCP",Mass=False)
-DRP1.Auto_Gauss()
-DRP1.Fit_Gaussian()
+Arr = [0]
+Cf = np.array(Arr)
+DRP1 = iSCAMS(Cf,Conc="250nM",Protein="DRP1",Buffer="HEPES")
+print(DRP1.__dict__)
+DRP1.Read_Params()
+print(DRP1.__dict__)
 
 '''
+DRP1.Auto_Gauss()
+DRP1.Fit_Gaussian()
+DRP1.Save_Params()
+DRP1.Read_Params()
+
 plt.figure()
 for i in range(1,10):
     plt.subplot(3,3,i)

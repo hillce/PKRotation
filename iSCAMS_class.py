@@ -7,6 +7,8 @@ from astroML.plotting import hist
 from scipy.optimize import curve_fit
 from scipy.signal import argrelextrema
 from scipy.ndimage.filters import gaussian_filter1d as gd1
+import pickle
+
 
 ###############################################################################################################################
 #### The iSCAMS class contains all the functions and info that you would want to extract from the contrast of the fitted   ####
@@ -62,9 +64,9 @@ class iSCAMS:
                 
 
         if self.Mass == True:
-            self.x = np.linspace(self.m_range[0],self.m_range[1],1500)
+            self.x = np.linspace(self.m_range[0],self.m_range[1],3000)
         else:
-            self.x = np.linspace(self.c_range[0],self.c_range[1],1500)
+            self.x = np.linspace(self.c_range[0],self.c_range[1],3000)
         
         self.fit = self.func(self.x, *self.popt)
 
@@ -74,6 +76,7 @@ class iSCAMS:
             plt.xlabel("Mass (kDa)",fontsize = 12, color = 'blue')
         else:
             plt.xlabel("Contrast",fontsize = 12,color='blue')
+            n, bins, pathces = hist(self.contrast,bins=self.bins,normed=True,align='mid')
         plt.ylabel("Probability Density",fontsize = 12,color='blue')
         plt.show()
 
@@ -157,6 +160,33 @@ class iSCAMS:
             plt.xlabel("Contrast")
             plt.ylabel("Particle Frequency")
             plt.show()
+
+    def Save_Params(self):
+        f = open(self.Protein+"_"+self.Conc+"_"+self.Buffer,'wb')
+        pickle.dump(self.__dict__,f)
+        f.close()
+
+    def Read_Params(self):
+        f = open(self.Protein+"_"+self.Conc+"_"+self.Buffer,'rb')
+        Dicti = pickle.load(f)
+        self.contrast = Dicti['contrast']
+        self.instances = Dicti['instances']
+        self.mass_data = Dicti['mass_data']
+        self.popt = Dicti['popt']
+        self.p_guess = Dicti['p_guess']
+        self.x = Dicti['x']
+        self.fit = Dicti['fit']
+        self.bins = Dicti['bins']
+        self.Mass = Dicti['Mass']
+        self.c_range = Dicti['c_range']
+        self.m_range = Dicti['m_range']
+        self.order = Dicti['order']
+        self.contrast_smooth = Dicti['contrast_smooth']
+        self.mass_smooth = Dicti['mass_smooth']
+        self.Conc = Dicti['Conc']
+        self.Protein = Dicti['Protein']
+        self.Buffer = Dicti['Buffer']
+        self.Nucleotide = Dicti['Nucleotide']
 
     
 
