@@ -7,7 +7,6 @@ import matplotlib as mpl
 import numpy as np 
 import matplotlib.pyplot as plt 
 from scipy.ndimage.filters import gaussian_filter1d as gd1
-from Calibration import Calibration_Line
 
 def GaussKernel(Path,File,sigma=20,m=1.0,b=0.0,Rescaled=False):
 
