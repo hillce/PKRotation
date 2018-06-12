@@ -35,6 +35,8 @@ class iSCAMS:
         self.Protein = Protein
         self.Buffer = Buffer
         self.Nucleotide = Nucleotide
+        self.norm_n = []
+        self.norm_bins = []
 
     def func(self, x, *params): # Multiple Gaussian function for scipy.optimize.curve_fit
         y = np.zeros_like(x)
@@ -160,13 +162,13 @@ class iSCAMS:
             plt.ylabel("Particle Frequency")
             plt.show()
 
-    def Save_Params(self):
-        f = open("C:/Users/Charles Hill/iSCAMS_data/"+self.Protein+"_"+self.Conc+"_"+self.Buffer,'wb')
+    def Save_Params(self,Folder):
+        f = open(Folder+self.Protein+"_"+self.Conc+"_"+self.Buffer,'wb')
         pickle.dump(self.__dict__,f)
         f.close()
 
-    def Read_Params(self):
-        f = open("C:/Users/Charles Hill/iSCAMS_data/"+self.Protein+"_"+self.Conc+"_"+self.Buffer,'rb')
+    def Read_Params(self,Folder):
+        f = open(Folder+self.Protein+"_"+self.Conc+"_"+self.Buffer,'rb')
         Dicti = pickle.load(f)
         self.contrast = Dicti['contrast']
         self.instances = Dicti['instances']
@@ -186,6 +188,21 @@ class iSCAMS:
         self.Protein = Dicti['Protein']
         self.Buffer = Dicti['Buffer']
         self.Nucleotide = Dicti['Nucleotide']
+
+    def normalisation(self):
+        if self.Mass == True:
+            n, bins, p = hist(self.mass_data,bins=self.bins,range=self.m_range)
+        else:
+            n, bins, p = hist(self.contrast,bins=self.bins,range=self.c_range)
+
+        sum_n = 0
+        for i in range(len(n)):
+            sum_n += n[i]*(bins[i+1] - bins[i])
+        N = 1.0/sum_n
+
+        self.norm_n = n*N
+        self.norm_bins = bins
+
 
     
 
