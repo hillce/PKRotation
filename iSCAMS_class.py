@@ -28,6 +28,7 @@ class iSCAMS:
         self.Mass = Mass
         self.c_range = c_range
         self.m_range = m_range
+        self.__m_ran = (0.0,100)
         self.order = order
         self.contrast_smooth = []
         self.mass_smooth = []
@@ -37,6 +38,9 @@ class iSCAMS:
         self.Nucleotide = Nucleotide
         self.norm_n = []
         self.norm_bins = []
+
+    def print_m(self):
+        print(self.__m_ran)    
 
     def func(self, x, *params): # Multiple Gaussian function for scipy.optimize.curve_fit
         y = np.zeros_like(x)
@@ -134,11 +138,11 @@ class iSCAMS:
         for i in range(No_gauss):
             print("Gaussian %i" % (i+1))
             print("Centre:")
-            self.p_guess.append(float(input()))
+            np.append(self.p_guess,float(input()))
             print("Amplitude:")
-            self.p_guess.append(float(input()))
+            np.append(self.p_guess,float(input()))
             print("Width:")
-            self.p_guess.append(float(input()))
+            np.append(self.p_guess,float(input()))
 
     def GaussKernel(self,sigma=20): # Runs a gaussian kernel over the data, of sigma you set
         if self.Mass == True:

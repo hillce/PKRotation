@@ -13,6 +13,7 @@ class iSCAMS_calibrate():
     def __init__(self,Cf,Protein,bins="knuth"):
         self.STD_DICT= {"ADH":(77.8,152.3),"BetaA":(60.7),"ProA":(44),"BSA":(66.6)}
         self.Protein = Protein
+        self.Peaks = self.STD_DICT[Protein]
         self.contrast = abs(Cf)
         self.bins = bins
         self.popt = []
@@ -43,11 +44,14 @@ class iSCAMS_calibrate():
 
         print("Number of Gaussians:")
         No_gauss = int(input())
+        temp_guess = []
         for i in range(No_gauss):
             print("Gaussian %i" % (i+1))
             print("Centre:")
-            np.append(self.p_guess,float(input()))
+            temp_guess.append(float(input()))
             print("Amplitude:")
-            np.append(self.p_guess,float(input()))
+            temp_guess.append(float(input()))
             print("Width:")
-            np.append(self.p_guess,float(input()))
+            temp_guess.append(float(input()))
+
+        self.p_guess = np.array(temp_guess)
