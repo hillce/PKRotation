@@ -11,7 +11,7 @@ from scipy.optimize import curve_fit
 
 class iSCAMS_calibrate():
     def __init__(self,Cf,Protein,bins="knuth"):
-        self.STD_DICT= {"ADH":(77.8,152.3),"BetaA":(60.7),"ProA":(44),"BSA":(66.6)}
+        self.STD_DICT= {"ADH":(73.5,147),"BetaA":(112,224),"ProA":(44),"BSA":(66.6)}
         self.Protein = Protein
         self.Peaks = self.STD_DICT[Protein]
         self.contrast = abs(Cf)
