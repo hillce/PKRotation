@@ -16,10 +16,10 @@ import pickle
 ###############################################################################################################################
 
 class iSCAMS:
-    def __init__(self,Cf,Conc='',Protein = '',Buffer = '',Nucleotide = '',c_range=(0.0,0.15),m_range=(0.0,1500),Mass=True,bin_type='knuth',order=3):
+    def __init__(self,Cf,Conc='',Protein = '',Buffer = '',Nucleotide = '',c_range=(0.0,0.15),m_range=(0.0,1500),Mass=True,bin_type='knuth',order=3,m = 1.0, b = 0.0):
         self.contrast = abs(Cf)
         self.instances = len(Cf)
-        self.mass_data = []
+        self.mass_data = self.contrast*m + b
         self.popt = []
         self.p_guess = []
         self.x = []
@@ -28,7 +28,6 @@ class iSCAMS:
         self.Mass = Mass
         self.c_range = c_range
         self.m_range = m_range
-        self.__m_ran = (0.0,100)
         self.order = order
         self.contrast_smooth = []
         self.mass_smooth = []
@@ -38,9 +37,8 @@ class iSCAMS:
         self.Nucleotide = Nucleotide
         self.norm_n = []
         self.norm_bins = []
-
-    def print_m(self):
-        print(self.__m_ran)    
+        self.m = m
+        self.b = b
 
     def func(self, x, *params): # Multiple Gaussian function for scipy.optimize.curve_fit
         y = np.zeros_like(x)
@@ -150,13 +148,16 @@ class iSCAMS:
         else:
             self.contrast_smooth = gd1(np.sort(self.contrast),sigma)
 
-    def Plot_hist(self): # Plots the histogram of the data, with a legend and axis.
+    def Plot_hist(self,KeyTicks=None): # Plots the histogram of the data, with a legend and axis.
         if self.Mass == True:
             plt.figure()
             hist(self.mass_data,bins=self.bins,align='left',label=self.Protein+"("+self.Conc+","+self.Buffer+","+self.Nucleotide+")")
             plt.legend()
             plt.xlabel("Mass (kDa)")
             plt.ylabel("Particle Frequency")
+            plt.xlim(self.m_range)
+            if not KeyTicks == None:
+                plt.xticks(KeyTicks)
             plt.show()
         else:
             plt.figure()
@@ -164,6 +165,7 @@ class iSCAMS:
             plt.legend()
             plt.xlabel("Contrast")
             plt.ylabel("Particle Frequency")
+            plt.xlim(self.c_range)
             plt.show()
 
     def Save_Params(self,Folder):
