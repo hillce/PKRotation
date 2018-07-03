@@ -1,0 +1,1 @@
+from astroML.plotting import knuth_bin_width
